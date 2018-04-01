@@ -24,7 +24,7 @@ public class JdbcTest {
         // 密码
         String password = "root";
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement prestmt = null;
         ResultSet rs = null;
         try{
             // 1、加载数据库驱动（ 成功加载后，会将Driver类的实例注册到DriverManager
@@ -32,11 +32,10 @@ public class JdbcTest {
             // 2、获取数据库连接
             conn = DriverManager.getConnection(url, username, password);
             // 3、获取数据库操作对象
-            stmt = conn.createStatement();
-            // 4、定义操作的SQL语句
-            String sql = "Select * from tb_user where id=1";
-            // 5、执行数据库操作
-            rs = stmt.executeQuery(sql);
+            prestmt = conn.prepareStatement("select * from tb_user where id=?");
+            prestmt.setInt(1,1);
+            // 4、执行数据库操作
+            rs = prestmt.executeQuery();
             while (rs.next()) {
                 System.out.println(rs.getInt("id"));
                 System.out.println(rs.getString("username"));
@@ -51,9 +50,9 @@ public class JdbcTest {
                     log.error(e.getMessage(), e);
                 }
             }
-            if(stmt!=null){
+            if(prestmt!=null){
                 try {
-                    stmt.close();
+                    prestmt.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
